@@ -5,18 +5,28 @@
 
 // Variables
 let score = 0;
+let timeLeft = 60;
 
 // HTML DOM
 const button1 = document.getElementById('button1');
 const scoreDisplay = document.getElementById('scoreDisplay');
-
-// UI Functions
+const timerDisplay = document.getElementById('timerDisplay');
+// UI Functions & Events
 button1.addEventListener('click', () => {
   increaseScore();
 })
+
+// TODO: Start only when "Click Me is Clicked"
+setInterval(countdown,  1000);
 
 // Functions
 function increaseScore() {
   score++;
   scoreDisplay.innerText = score;
+}
+
+function countdown() {
+  timeLeft--;
+  timerDisplay.innerText = timeLeft;
+  // TODO: Stop timer at the end.
 }
