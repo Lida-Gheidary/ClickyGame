@@ -8,6 +8,7 @@ let score = 0;
 let timeLeft = 5;
 let gameStarted = false;
 let gameEnded = false;
+let interval = null;
 
 // HTML DOM
 const button1 = document.getElementById('button1');
@@ -24,7 +25,6 @@ button1.addEventListener('click', () => {
     startGame();
   }
 })
-
 
 // Functions
 function increaseScore() {
@@ -43,10 +43,12 @@ function countdown() {
 }
 
 function startGame() {
-  setInterval(countdown,  1000);
+  interval = setInterval(countdown,  1000);
   gameStarted = true;
 }
 
 function endGame() {
   gameEnded = true;
+  clearInterval(interval);
+  // TODO: Make something appear for the user to input their name.
 }
