@@ -5,6 +5,7 @@
 
 // Variables
 let score = 0;
+//Correcting time to 60 seconds//
 let timeLeft = 60;
 let gameStarted = false;
 let gameEnded = false;
@@ -66,8 +67,24 @@ function endGame() {
   label1.style.display = 'block';
   button2.style.display = 'block';
 }
+//Sends player's name and score to the shared scoreboard API prepared by Ben//
+async function submitHighScore() {
+  const name = input1.value;
 
-function submitHighScore() {
-  console.log(input1.value);
-  // TODO: POST value to API from Ben.
+  try {
+    const response = await fetch("https://hooks.zapier.com/hooks/catch/8338993/ujs9jj9/", {
+      method: "POST",
+      body: JSON.stringify({ name: name, score: score }),
+    });
+
+    if (response.ok) {
+      alert("Score submitted successfully!");
+    } else {
+      alert("Something went wrong. Score not submitted.");
+    }
+
+  } catch (error) {
+    //Handles network errors or API errors//
+    alert("Error: Could not connect to scoreboard.");
+  }
 }
