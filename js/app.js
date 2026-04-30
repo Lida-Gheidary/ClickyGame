@@ -18,6 +18,8 @@ const scoreDisplay = document.getElementById('scoreDisplay');
 const timerDisplay = document.getElementById('timerDisplay');
 const label1 = document.getElementById('label1');
 const input1 = document.getElementById('name');
+const scoreboard = document.getElementById('scoreboard');
+const button3 = document.getElementById('button3')
 
 // UI Functions & Events
 button1.addEventListener('click', () => {
@@ -34,9 +36,15 @@ button2.addEventListener('click', () => {
   submitHighScore();
 })
 
+// Show the scoreboard when the button is clicked //
+button3.addEventListener('click', () => {
+  loadScoreboard();
+});
+
 input1.style.display = 'none';
 label1.style.display = 'none';
 button2.style.display = 'none';
+button3.style.display = 'none';
 
 // Functions
 function increaseScore() {
@@ -66,6 +74,7 @@ function endGame() {
   input1.style.display = 'block';
   label1.style.display = 'block';
   button2.style.display = 'block';
+  button3.style.display = 'block';
 }
 //Sends player's name and score to the shared scoreboard API prepared by Ben//
 async function submitHighScore() {
@@ -86,5 +95,24 @@ async function submitHighScore() {
   } catch (error) {
     //Handles network errors or API errors//
     alert("Error: Could not connect to scoreboard.");
+  }
+}
+
+// Fetches and displays the scoreboard sorted by highest score //
+async function loadScoreboard() {
+  try {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbys5aEPMvNCutyhNYYCcQcCjzsi2UtqNspmKyCH-AicJxJbCJMrAoT0LUaYaXhTWA8n/exec");
+    const data = await response.json();
+
+    data.sort((a, b) => b.score - a.score);
+
+    scoreboard.innerHTML = "";
+    data.forEach((entry, index) => {
+      scoreboard.innerHTML += `<p>${index + 1}. ${entry.name} — ${entry.score}</p>`;
+    });
+
+  } catch (error) {
+    // Handles failure to load scoreboard data //
+    scoreboard.innerText = "Could not load scoreboard.";
   }
 }
