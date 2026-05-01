@@ -74,9 +74,9 @@ function endGame() {
   input1.style.display = 'block';
   label1.style.display = 'block';
   button2.style.display = 'block';
-  button3.style.display = 'block';
+  
 }
-//Sends player's name and score to the shared scoreboard API prepared by Ben//
+// Sends player's name and score to the shared scoreboard API prepared by Ben
 async function submitHighScore() {
   const name = input1.value;
 
@@ -88,12 +88,16 @@ async function submitHighScore() {
 
     if (response.ok) {
       alert("Score submitted successfully!");
+      button2.style.display = 'none';
+      input1.style.display = 'none';
+      label1.style.display = 'none';
+      button3.style.display = 'block';
     } else {
       alert("Something went wrong. Score not submitted.");
     }
 
   } catch (error) {
-    //Handles network errors or API errors//
+    // Handles network errors or API being unreachable
     alert("Error: Could not connect to scoreboard.");
   }
 }
