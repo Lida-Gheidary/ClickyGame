@@ -46,15 +46,15 @@ gameArea.style.display = 'none';
 // Functions
 function increaseScore() {
   score++;
-  scoreDisplay.innerText = score;
+  scoreDisplay.innerText = '⭐ ' + score;
 }
 
 function countdown() {
   timeLeft--;
-  timerDisplay.innerText = timeLeft;
+  timerDisplay.innerText = '⏱ ' + timeLeft;
 
   if (timeLeft <= 0) {
-    timerDisplay.innerText = 0;
+    timerDisplay.innerText = '⏱ 0';
     endGame();
   }
 }

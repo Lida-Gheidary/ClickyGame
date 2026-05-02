@@ -7,9 +7,11 @@
 }
 
 body {
-  background-image: url('../img/space.png');
+  background-image: url('../img/Rocket.png');
   background-size: cover;
-  background-position: center;
+  background-repeat: no-repeat;
+  background-position: center top;
+  min-height: 100vh;
   margin: 0;
   padding: 20px;
 }
@@ -55,11 +57,56 @@ button {
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.5);
-  padding: 6px 10px;
+  padding: 10px 14px;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 #name::placeholder {
   color: rgba(255, 255, 255, 0.5);
+}
+
+#subtitle {
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 12px rgba(180, 180, 255, 0.8);
+  color: #e0e0ff;
+  margin-bottom: 10px;
+}
+
+#hud {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  align-items: center;
+  margin: 12px 0;
+}
+
+#scoreDisplay {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #FFD700;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px 24px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+#timerDisplay {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #00e5ff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px 24px;
+  border-radius: 30px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+}
+
+#button1, #button2, #button3 {
+  font-size: 1.1rem;
+  padding: 12px 28px;
+  border-radius: 8px;
+  cursor: pointer;
 }

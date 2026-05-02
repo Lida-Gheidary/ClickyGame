@@ -24,18 +24,20 @@
 
 <body>
 
-  <h1 id="gameTitle">🚀 Rocket Clicker</h1>
-  <p id="gameSubtitle">Rockets are launching faster than you can click. Prove them wrong.</p>
+  <h1 id="gameTitle">🚀 Rocket Clicker 🚀</h1>
+  <p id="subtitle">Rockets are launching faster than you can click! Prove them wrong 💪🏼</p>
 
-  <p id="scoreDisplay">0</p>
-  <p id="timerDisplay">60</p>
-
+<div id="hud">
+  <div id="scoreDisplay">⭐ 0</div>
+  <div id="timerDisplay">⏱ 60</div>
+</div>
+  
   <div id="gameArea"></div>
 
   <button id="button1">Start</button>
 
 <div id="endSection">
-  <label id="label1" for="name">Name (3 to 16 characters):</label>
+  <label id="label1" for="name">Enter your name & submit score:</label>
   <input type="text" id="name" name="name" required minlength="3" maxlength="16" size="16" />
   <button id="button2">Submit Score</button>
   <div id="scoreboard"></div>
