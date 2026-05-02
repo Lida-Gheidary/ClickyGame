@@ -10,6 +10,7 @@ let timeLeft = 60;
 let gameStarted = false;
 let gameEnded = false;
 let interval = null;
+let rocketInterval = null;
 
 // HTML DOM
 const button1 = document.getElementById('button1');
@@ -20,17 +21,16 @@ const label1 = document.getElementById('label1');
 const input1 = document.getElementById('name');
 const scoreboard = document.getElementById('scoreboard');
 const button3 = document.getElementById('button3')
+const gameArea = document.getElementById('gameArea');
 
 // UI Functions & Events
 button1.addEventListener('click', () => {
-  if (!gameEnded) {
-    increaseScore();
-  }
-
   if (!gameStarted) {
     startGame();
+    gameArea.style.display = 'block';
+    button1.style.display = 'none';
   }
-})
+});
 
 button2.addEventListener('click', () => {
   submitHighScore();
@@ -41,10 +41,7 @@ button3.addEventListener('click', () => {
   loadScoreboard();
 });
 
-input1.style.display = 'none';
-label1.style.display = 'none';
-button2.style.display = 'none';
-button3.style.display = 'none';
+gameArea.style.display = 'none';
 
 // Functions
 function increaseScore() {
@@ -63,19 +60,37 @@ function countdown() {
 }
 
 function startGame() {
-  interval = setInterval(countdown,  1000);
+  interval = setInterval(countdown, 1000);
+  rocketInterval = setInterval(spawnRocket, 600);
   gameStarted = true;
 }
 
 function endGame() {
   gameEnded = true;
   clearInterval(interval);
+  clearInterval(rocketInterval);
+  gameArea.innerHTML = "";
   button1.style.display = 'none';
-  input1.style.display = 'block';
-  label1.style.display = 'block';
-  button2.style.display = 'block';
-  
+  document.getElementById('endSection').style.display = 'flex';
+  button3.style.display = 'none';
 }
+
+// Spawns a rocket at a random position inside the game area
+function spawnRocket() {
+  const rocket = document.createElement('div');
+  rocket.classList.add('rocket');
+  rocket.innerText = '🚀';
+  rocket.style.left = Math.random() * 560 + 'px';
+  rocket.style.top = Math.random() * 260 + 'px';
+
+  rocket.addEventListener('click', () => {
+    increaseScore();
+    rocket.remove();
+  });
+
+  gameArea.appendChild(rocket);
+}
+  
 // Sends player's name and score to the shared scoreboard API prepared by Ben
 async function submitHighScore() {
   const name = input1.value.trim();
