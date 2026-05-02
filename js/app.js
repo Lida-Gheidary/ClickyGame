@@ -78,7 +78,12 @@ function endGame() {
 }
 // Sends player's name and score to the shared scoreboard API prepared by Ben
 async function submitHighScore() {
-  const name = input1.value;
+  const name = input1.value.trim();
+
+  if (name.length < 3) {
+    alert("Please enter a name with at least 3 characters.");
+    return;
+  }
 
   try {
     const response = await fetch("https://hooks.zapier.com/hooks/catch/8338993/ujs9jj9/", {
