@@ -15,11 +15,16 @@ body {
 }
 
 #gameArea {
+  width: 800px;
+  height: 400px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
   position: relative;
-  width: 600px;
-  height: 300px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 30px rgba(100, 150, 255, 0.2);
   margin: 20px auto;
-  border: 1px solid white;
 }
 
 .rocket {
@@ -44,4 +49,17 @@ button {
   align-items: center;
   gap: 10px;
   margin-top: 20px;
+}
+
+#name {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+#name::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }

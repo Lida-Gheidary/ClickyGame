@@ -69,7 +69,7 @@ function endGame() {
   gameEnded = true;
   clearInterval(interval);
   clearInterval(rocketInterval);
-  gameArea.innerHTML = "";
+  // remove: gameArea.innerHTML = "";   ← DELETE this line
   button1.style.display = 'none';
   document.getElementById('endSection').style.display = 'flex';
   button3.style.display = 'none';
@@ -84,6 +84,7 @@ function spawnRocket() {
   rocket.style.top = Math.random() * 260 + 'px';
 
   rocket.addEventListener('click', () => {
+    if (gameEnded) return;
     increaseScore();
     rocket.remove();
   });
