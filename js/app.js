@@ -80,8 +80,8 @@ function spawnRocket() {
   const rocket = document.createElement('div');
   rocket.classList.add('rocket');
   rocket.innerText = '🚀';
-  rocket.style.left = Math.random() * 560 + 'px';
-  rocket.style.top = Math.random() * 240 + 'px';
+  rocket.style.left = Math.random() * 520 + 'px';
+  rocket.style.top = Math.random() * 210 + 'px';
 
   rocket.addEventListener('click', () => {
     if (gameEnded) return;
