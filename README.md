@@ -15,18 +15,18 @@ Click 🚀 Launch Again to try to beat your score
 Best Experienced On
 ✅ Chrome on desktop
 ✅ Best played on touch screen
-⚠️ Not highly optimised for mobile or Microsoft Edge 
+⚠️ Not highly optimised for mobile or Microsoft Edge
 
 Built With
 HTML, CSS, JavaScript
 
-Zapier (score submission)
+Zapier: score submission
 
-Google Sheets (leaderboard storage)
+Google Sheets; leaderboard storage
 
 Notes
 Name must be between 3 and 16 characters to submit
 
 Scoreboard shows the top 20 highest scores from all players
 
-Rockets stay frozen on screen when time runs out; no cheating after the buzzer!
+Rockets freeze when time runs out; no cheating after the buzzer!
