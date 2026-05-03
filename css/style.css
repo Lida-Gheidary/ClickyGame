@@ -1,10 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
 
+
 * {
   font-family: 'Questrial', sans-serif;
   color: white;
   text-align: center;
 }
+
 
 body {
   background-image: url('../img/Rocket.png');
@@ -15,6 +17,7 @@ body {
   margin: 0;
   padding: 10px;
 }
+
 
 #gameArea {
   width: 600px;
@@ -29,12 +32,14 @@ body {
   margin: 20px auto;
 }
 
+
 .rocket {
   position: absolute;
   font-size: 30px;
   cursor: pointer;
   user-select: none;
 }
+
 
 button {
   margin: 5px;
@@ -45,6 +50,7 @@ button {
   font-size: 16px;
 }
 
+
 #endSection {
   display: none;
   flex-direction: column;
@@ -52,6 +58,7 @@ button {
   gap: 7px;
   margin-top: 20px;
 }
+
 
 #name {
   color: #ffffff;
@@ -62,17 +69,20 @@ button {
   font-size: 1.1rem;
 }
 
+
 #name::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
+
 #subtitle {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   letter-spacing: 0.05em;
   text-shadow: 0 0 12px rgba(180, 180, 255, 0.8);
   color: #e0e0ff;
   margin-bottom: 10px;
 }
+
 
 #hud {
   display: flex;
@@ -82,19 +92,21 @@ button {
   margin: 12px 0;
 }
 
+
 #scoreDisplay {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: bold;
   color: #FFD700;
   background: #1a1200;
   padding: 8px 24px;
   border-radius: 30px;
   border: 1px solid rgba(255, 215, 0, 0.7);
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
+
 #timerDisplay {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: bold;
   color: #00e5ff;
   background: #001a1f;
@@ -104,8 +116,9 @@ button {
   text-shadow: 0 0 10px rgba(0, 229, 255, 1);
 }
 
+
 #button1, #button2, #button3 {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   padding: 12px 28px;
   border-radius: 8px;
   cursor: pointer;
@@ -115,24 +128,29 @@ button {
   text-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
 }
 
+
 h1 {
   margin: 5px 0;
 }
+
 
 #subtitle {
   margin: 4px 0 8px 0;
 }
 
+
 #hud {
   margin: 6px 0;
 }
 
+
 #label1 {
   color: #00e5ff;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: bold;
   text-shadow: 0 0 6px rgba(0, 229, 255, 0.9), 0 2px 8px rgba(0, 0, 0, 0.9);
 }
+
 
 #scoreboard {
   margin-top: 10px;
@@ -146,6 +164,11 @@ h1 {
   text-align: left;
 }
 
+
 #scoreboard {
   display: none;
+}
+
+#playAgain {
+  font-size: 1.3rem;
 }

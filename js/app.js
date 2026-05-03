@@ -37,6 +37,7 @@ button2.addEventListener('click', () => {
 })
 
 // Show the scoreboard when the button is clicked //
+// Show the scoreboard when the button is clicked 
 button3.addEventListener('click', () => {
   loadScoreboard();
 });
@@ -62,6 +63,7 @@ function countdown() {
 function startGame() {
   interval = setInterval(countdown, 1000);
   rocketInterval = setInterval(spawnRocket, 600);
+  rocketInterval = setInterval(spawnRocket, 200);
   gameStarted = true;
 }
 
@@ -126,6 +128,7 @@ async function submitHighScore() {
 }
 
 // Fetches and displays the scoreboard sorted by highest score //
+// Fetches and displays the scoreboard sorted by highest score 
 async function loadScoreboard() {
   scoreboard.style.display = 'none';
   button3.style.display = 'none';
