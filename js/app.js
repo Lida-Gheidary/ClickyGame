@@ -73,6 +73,8 @@ function endGame() {
   button1.style.display = 'none';
   document.getElementById('endSection').style.display = 'flex';
   button3.style.display = 'none';
+  document.getElementById('finalScore').style.display = 'block';
+  document.getElementById('finalScore').innerText = '⭐ Your score: ' + score;
 }
 
 // Spawns a rocket at a random position inside the game area
@@ -125,19 +127,25 @@ async function submitHighScore() {
 
 // Fetches and displays the scoreboard sorted by highest score //
 async function loadScoreboard() {
+  scoreboard.style.display = 'none';
+  button3.style.display = 'none';
+
   try {
     const response = await fetch("https://script.google.com/macros/s/AKfycbys5aEPMvNCutyhNYYCcQcCjzsi2UtqNspmKyCH-AicJxJbCJMrAoT0LUaYaXhTWA8n/exec");
     const data = await response.json();
 
     data.sort((a, b) => b.score - a.score);
+    const top20 = data.slice(0, 20);
 
-    scoreboard.innerHTML = "";
-    data.forEach((entry, index) => {
+    scoreboard.innerHTML = "<h3 style='margin-bottom:10px;'>🏆 Top 20 Scores</h3>";
+    top20.forEach((entry, index) => {
       scoreboard.innerHTML += `<p>${index + 1}. ${entry.name} — ${entry.score}</p>`;
     });
 
+    scoreboard.style.display = 'block';
+
   } catch (error) {
-    // Handles failure to load scoreboard data //
     scoreboard.innerText = "Could not load scoreboard.";
+    scoreboard.style.display = 'block';
   }
 }

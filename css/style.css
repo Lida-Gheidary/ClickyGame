@@ -83,7 +83,7 @@ button {
 }
 
 #scoreDisplay {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: #FFD700;
   background: #1a1200;
@@ -94,7 +94,7 @@ button {
 }
 
 #timerDisplay {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: #00e5ff;
   background: #001a1f;
@@ -105,7 +105,7 @@ button {
 }
 
 #button1, #button2, #button3 {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   padding: 12px 28px;
   border-radius: 8px;
   cursor: pointer;
@@ -129,7 +129,23 @@ h1 {
 
 #label1 {
   color: #00e5ff;
-  font-size: 1.1rem;
+  font-size: 1.8rem;
   font-weight: bold;
   text-shadow: 0 0 6px rgba(0, 229, 255, 0.9), 0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+#scoreboard {
+  margin-top: 10px;
+  padding: 16px 24px;
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  border-radius: 12px;
+  background: #001a1f;
+  color: #00e5ff;
+  max-height: 300px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+#scoreboard {
+  display: none;
 }
