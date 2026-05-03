@@ -5,7 +5,6 @@
 
 // Variables
 let score = 0;
-//Correcting time to 60 seconds//
 let timeLeft = 60;
 let gameStarted = false;
 let gameEnded = false;
@@ -36,7 +35,6 @@ button2.addEventListener('click', () => {
   submitHighScore();
 })
 
-// Show the scoreboard when the button is clicked //
 // Show the scoreboard when the button is clicked 
 button3.addEventListener('click', () => {
   loadScoreboard();
@@ -62,7 +60,6 @@ function countdown() {
 
 function startGame() {
   interval = setInterval(countdown, 1000);
-  rocketInterval = setInterval(spawnRocket, 600);
   rocketInterval = setInterval(spawnRocket, 200);
   gameStarted = true;
 }
@@ -71,7 +68,7 @@ function endGame() {
   gameEnded = true;
   clearInterval(interval);
   clearInterval(rocketInterval);
-  // remove: gameArea.innerHTML = "";   ← DELETE this line
+  gameArea.innerHTML = '';
   button1.style.display = 'none';
   document.getElementById('endSection').style.display = 'flex';
   button3.style.display = 'none';
@@ -127,7 +124,6 @@ async function submitHighScore() {
   }
 }
 
-// Fetches and displays the scoreboard sorted by highest score //
 // Fetches and displays the scoreboard sorted by highest score 
 async function loadScoreboard() {
   scoreboard.style.display = 'none';
@@ -152,3 +148,7 @@ async function loadScoreboard() {
     scoreboard.style.display = 'block';
   }
 }
+
+document.getElementById('playAgain').addEventListener('click', () => {
+  location.reload();
+}); 
