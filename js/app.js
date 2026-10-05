@@ -1,154 +1,240 @@
-// Click a button or object to earn points so that I can increase my score.
-// See my current score during the game so that I know how well I am doing.
+import { db, getPlayer } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+} from "firebase/firestore";
 
-// See a countdown timer so that I know how much time is left. setInterval();
-
-// Variables
+// Game state
 let score = 0;
 let timeLeft = 60;
 let gameStarted = false;
 let gameEnded = false;
 let interval = null;
 let rocketInterval = null;
+let loadingLeaderboard = false;
 
-// HTML DOM
-const button1 = document.getElementById('button1');
-const button2 = document.getElementById('button2');
-const scoreDisplay = document.getElementById('scoreDisplay');
-const timerDisplay = document.getElementById('timerDisplay');
-const label1 = document.getElementById('label1');
-const input1 = document.getElementById('name');
-const scoreboard = document.getElementById('scoreboard');
-const button3 = document.getElementById('button3')
-const gameArea = document.getElementById('gameArea');
+// Game elements
+const button1 = document.getElementById("button1");
+const button2 = document.getElementById("button2");
+const button3 = document.getElementById("button3");
+const scoreDisplay = document.getElementById("scoreDisplay");
+const timerDisplay = document.getElementById("timerDisplay");
+const label1 = document.getElementById("label1");
+const input1 = document.getElementById("name");
+const gameArea = document.getElementById("gameArea");
+const endSection = document.getElementById("endSection");
+const finalScore = document.getElementById("finalScore");
+const playAgain = document.getElementById("playAgain");
 
-// UI Functions & Events
-button1.addEventListener('click', () => {
+// Leaderboard popup elements
+const scoreboard = document.getElementById("scoreboard");
+const leaderboardDialog = document.getElementById("leaderboardDialog");
+const leaderboardMessage = document.getElementById("leaderboardMessage");
+const refreshLeaderboard = document.getElementById("refreshLeaderboard");
+const closeLeaderboard = document.getElementById("closeLeaderboard");
+const modalPlayAgain = document.getElementById("modalPlayAgain");
+
+// Initial display
+gameArea.style.display = "none";
+
+// Button events
+button1.addEventListener("click", () => {
   if (!gameStarted) {
     startGame();
-    gameArea.style.display = 'block';
-    button1.style.display = 'none';
+    gameArea.style.display = "block";
+    button1.style.display = "none";
   }
 });
 
-button2.addEventListener('click', () => {
+button2.addEventListener("click", () => {
   submitHighScore();
-})
+});
 
-// Show the scoreboard when the button is clicked 
-button3.addEventListener('click', () => {
+button3.addEventListener("click", () => {
   loadScoreboard();
 });
 
-gameArea.style.display = 'none';
+refreshLeaderboard.addEventListener("click", () => {
+  loadScoreboard();
+});
 
-// Functions
-function increaseScore() {
-  score++;
-  scoreDisplay.innerText = '⭐ ' + score;
+closeLeaderboard.addEventListener("click", () => {
+  leaderboardDialog.close();
+});
+
+leaderboardDialog.addEventListener("close", () => {
+  button3.focus();
+});
+
+playAgain.addEventListener("click", restartGame);
+modalPlayAgain.addEventListener("click", restartGame);
+
+function restartGame() {
+  location.reload();
 }
 
+// Increase the score when a rocket is clicked
+function increaseScore() {
+  score++;
+  scoreDisplay.innerText = "⭐ " + score;
+}
+
+// Update the timer once per second
 function countdown() {
   timeLeft--;
-  timerDisplay.innerText = '⏱ ' + timeLeft;
+  timerDisplay.innerText = "⏱ " + timeLeft;
 
   if (timeLeft <= 0) {
-    timerDisplay.innerText = '⏱ 0';
+    timerDisplay.innerText = "⏱ 0";
     endGame();
   }
 }
 
+// Start the countdown and rocket spawning
 function startGame() {
+  gameStarted = true;
   interval = setInterval(countdown, 1000);
   rocketInterval = setInterval(spawnRocket, 200);
-  gameStarted = true;
 }
 
+// Stop the game and show the submission controls
 function endGame() {
   gameEnded = true;
+
   clearInterval(interval);
   clearInterval(rocketInterval);
-  gameArea.innerHTML = '';
-  button1.style.display = 'none';
-  document.getElementById('endSection').style.display = 'flex';
-  button3.style.display = 'none';
-  document.getElementById('finalScore').style.display = 'block';
-  document.getElementById('finalScore').innerText = '⭐ Your score: ' + score;
+
+  gameArea.innerHTML = "";
+  button1.style.display = "none";
+  endSection.style.display = "flex";
+  button3.style.display = "none";
+
+  finalScore.style.display = "block";
+  finalScore.innerText = "⭐ Your score: " + score;
 }
 
-// Spawns a rocket at a random position inside the game area
+// Create a rocket at a random position
 function spawnRocket() {
-  const rocket = document.createElement('div');
-  rocket.classList.add('rocket');
-  rocket.innerText = '🚀';
-  rocket.style.left = Math.random() * 520 + 'px';
-  rocket.style.top = Math.random() * 210 + 'px';
+  const rocket = document.createElement("div");
 
-  rocket.addEventListener('click', () => {
+  rocket.classList.add("rocket");
+  rocket.innerText = "🚀";
+  rocket.style.left = Math.random() * 520 + "px";
+  rocket.style.top = Math.random() * 210 + "px";
+
+  rocket.addEventListener("click", () => {
     if (gameEnded) return;
+
     increaseScore();
     rocket.remove();
   });
 
   gameArea.appendChild(rocket);
 }
-  
-// Sends player's name and score to the shared scoreboard API prepared by Ben
+
+// Save the score, then automatically open the leaderboard
 async function submitHighScore() {
+  if (!gameEnded || button2.disabled) return;
+
   const name = input1.value.trim();
 
-  if (name.length < 3) {
-    alert("Please enter a name with at least 3 characters.");
+  if (name.length < 3 || name.length > 16) {
+    alert("Please enter a name between 3 and 16 characters.");
     return;
   }
 
-  try {
-    const response = await fetch("https://hooks.zapier.com/hooks/catch/8338993/ujs9jj9/", {
-      method: "POST",
-      body: JSON.stringify({ name: name, score: score }),
-    });
+  button2.disabled = true;
+  input1.disabled = true;
+  button2.textContent = "Submitting…";
 
-    if (response.ok) {
-      alert("Score submitted successfully!");
-      button2.style.display = 'none';
-      input1.style.display = 'none';
-      label1.style.display = 'none';
-      button3.style.display = 'block';
-    } else {
-      alert("Something went wrong. Score not submitted.");
+  try {
+    const player = await getPlayer();
+
+    await addDoc(collection(db, "scores"), {
+      name: name,
+      score: score,
+      uid: player.uid,
+      createdAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Score submission failed:", error);
+    alert("Could not submit your score. Please try again.");
+
+    button2.disabled = false;
+    input1.disabled = false;
+    button2.textContent = "Submit Score";
+    return;
+  }
+
+  button2.style.display = "none";
+  input1.style.display = "none";
+  label1.style.display = "none";
+  button3.style.display = "block";
+  button3.textContent = "Show Leaderboard";
+
+  // No success alert or OK click is needed
+  await loadScoreboard(true);
+}
+
+// Open the popup and fetch the highest scores
+async function loadScoreboard(justSubmitted = false) {
+  if (loadingLeaderboard) return;
+
+  loadingLeaderboard = true;
+  button3.disabled = true;
+  refreshLeaderboard.disabled = true;
+
+  try {
+    leaderboardMessage.textContent = justSubmitted
+      ? `Score saved! Your score: ${score}. Loading leaderboard…`
+      : "Loading leaderboard…";
+
+    scoreboard.replaceChildren();
+
+    // Open immediately while Firebase loads the scores
+    if (!leaderboardDialog.open) {
+      leaderboardDialog.showModal();
     }
 
-  } catch (error) {
-    // Handles network errors or API being unreachable
-    alert("Error: Could not connect to scoreboard.");
-  }
-}
+    const topScores = query(
+      collection(db, "scores"),
+      orderBy("score", "desc"),
+      limit(20)
+    );
 
-// Fetches and displays the scoreboard sorted by highest score 
-async function loadScoreboard() {
-  scoreboard.style.display = 'none';
-  button3.style.display = 'none';
+    const snapshot = await getDocs(topScores);
 
-  try {
-    const response = await fetch("https://script.google.com/macros/s/AKfycbys5aEPMvNCutyhNYYCcQcCjzsi2UtqNspmKyCH-AicJxJbCJMrAoT0LUaYaXhTWA8n/exec");
-    const data = await response.json();
+    leaderboardMessage.textContent = justSubmitted
+      ? `Score saved! Your score: ${score}.`
+      : "The highest scores from all players.";
 
-    data.sort((a, b) => b.score - a.score);
-    const top20 = data.slice(0, 20);
+    if (snapshot.empty) {
+      const message = document.createElement("p");
+      message.textContent = "No scores yet.";
+      scoreboard.appendChild(message);
+    }
 
-    scoreboard.innerHTML = "<h3 style='margin-bottom:10px;'>🏆 Top 20 Scores</h3>";
-    top20.forEach((entry, index) => {
-      scoreboard.innerHTML += `<p>${index + 1}. ${entry.name} — ${entry.score}</p>`;
+    snapshot.docs.forEach((scoreDocument, index) => {
+      const entry = scoreDocument.data();
+      const row = document.createElement("p");
+
+      row.textContent = `${index + 1}. ${entry.name} — ${entry.score}`;
+      scoreboard.appendChild(row);
     });
-
-    scoreboard.style.display = 'block';
-
   } catch (error) {
-    scoreboard.innerText = "Could not load scoreboard.";
-    scoreboard.style.display = 'block';
+    console.error("Leaderboard loading failed:", error);
+
+    leaderboardMessage.textContent = justSubmitted
+      ? "Your score was saved, but the leaderboard could not load. Click Refresh to retry."
+      : "Could not load the leaderboard. Click Refresh to retry.";
+  } finally {
+    loadingLeaderboard = false;
+    button3.disabled = false;
+    refreshLeaderboard.disabled = false;
   }
 }
-
-document.getElementById('playAgain').addEventListener('click', () => {
-  location.reload();
-}); 

@@ -172,3 +172,52 @@ h1 {
 #playAgain {
   font-size: 1.3rem;
 }
+
+#leaderboardDialog {
+  box-sizing: border-box;
+  width: min(92vw, 520px);
+  max-height: 85vh;
+  margin: auto;
+  padding: 24px;
+  overflow-y: auto;
+  background: #001a1f;
+  color: white;
+  border: 1px solid #00e5ff;
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(0, 229, 255, 0.25);
+}
+
+#leaderboardDialog::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+#leaderboardTitle {
+  margin-top: 0;
+  color: #00e5ff;
+}
+
+#leaderboardDialog #scoreboard {
+  display: block;
+  max-height: none;
+  margin: 16px 0;
+  padding: 0;
+  overflow: visible;
+  border: none;
+  background: transparent;
+}
+
+.leaderboardActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.leaderboardActions button {
+  border-radius: 8px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

@@ -41,10 +41,23 @@
   <label id="label1" for="name">Enter your name & submit score:</label>
   <input type="text" id="name" name="name" required minlength="3" maxlength="16" size="16" />
   <button id="button2">Submit Score</button>
-  <div id="scoreboard"></div>
   <button id="button3">Show Scoreboard</button>
   <button id="playAgain">🚀 Launch Again</button>
 </div>
+
+<dialog id="leaderboardDialog" aria-labelledby="leaderboardTitle">
+  <h2 id="leaderboardTitle">🏆 Top 20 Scores</h2>
+
+  <p id="leaderboardMessage" role="status" aria-live="polite"></p>
+
+  <div id="scoreboard"></div>
+
+  <div class="leaderboardActions">
+    <button id="refreshLeaderboard" type="button">Refresh</button>
+    <button id="modalPlayAgain" type="button">🚀 Launch Again</button>
+    <button id="closeLeaderboard" type="button" autofocus>Close</button>
+  </div>
+</dialog>
 
   <script src="js/app.js"></script>
 
