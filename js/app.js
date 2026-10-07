@@ -9,29 +9,36 @@ import {
   limit,
 } from "firebase/firestore";
 
-// Game state
+// Keep the original rules: 60 seconds, one rocket every 200ms, one point per hit.
+const GAME_SECONDS = 60;
+const ROCKET_INTERVAL = 200;
+
 let score = 0;
-let timeLeft = 60;
+let timeLeft = GAME_SECONDS;
 let gameStarted = false;
 let gameEnded = false;
 let interval = null;
 let rocketInterval = null;
+let submissionPending = false;
+let scoreSubmitted = false;
 let loadingLeaderboard = false;
+let leaderboardRequest = 0;
+let lastSubmission = null;
 
-// Game elements
 const button1 = document.getElementById("button1");
 const button2 = document.getElementById("button2");
 const button3 = document.getElementById("button3");
 const scoreDisplay = document.getElementById("scoreDisplay");
 const timerDisplay = document.getElementById("timerDisplay");
-const label1 = document.getElementById("label1");
 const input1 = document.getElementById("name");
 const gameArea = document.getElementById("gameArea");
+const startSection = document.getElementById("startSection");
 const endSection = document.getElementById("endSection");
 const finalScore = document.getElementById("finalScore");
+const scoreForm = document.getElementById("scoreForm");
+const formMessage = document.getElementById("formMessage");
+const gameStatus = document.getElementById("gameStatus");
 const playAgain = document.getElementById("playAgain");
-
-// Leaderboard popup elements
 const scoreboard = document.getElementById("scoreboard");
 const leaderboardDialog = document.getElementById("leaderboardDialog");
 const leaderboardMessage = document.getElementById("leaderboardMessage");
@@ -39,202 +46,267 @@ const refreshLeaderboard = document.getElementById("refreshLeaderboard");
 const closeLeaderboard = document.getElementById("closeLeaderboard");
 const modalPlayAgain = document.getElementById("modalPlayAgain");
 
-// Initial display
-gameArea.style.display = "none";
-
-// Button events
-button1.addEventListener("click", () => {
-  if (!gameStarted) {
-    startGame();
-    gameArea.style.display = "block";
-    button1.style.display = "none";
-  }
-});
-
-button2.addEventListener("click", () => {
+button1.addEventListener("click", startGame);
+scoreForm.addEventListener("submit", (event) => {
+  event.preventDefault();
   submitHighScore();
 });
-
-button3.addEventListener("click", () => {
-  loadScoreboard();
-});
-
-refreshLeaderboard.addEventListener("click", () => {
-  loadScoreboard();
-});
-
-closeLeaderboard.addEventListener("click", () => {
-  leaderboardDialog.close();
-});
-
-leaderboardDialog.addEventListener("close", () => {
-  button3.focus();
-});
-
+button3.addEventListener("click", () => loadScoreboard());
+refreshLeaderboard.addEventListener("click", () => loadScoreboard());
+closeLeaderboard.addEventListener("click", () => leaderboardDialog.close());
 playAgain.addEventListener("click", restartGame);
 modalPlayAgain.addEventListener("click", restartGame);
 
-function restartGame() {
-  location.reload();
+leaderboardDialog.addEventListener("close", () => {
+  if (!button3.disabled) button3.focus();
+});
+
+function updateHud() {
+  scoreDisplay.textContent = String(score);
+  scoreDisplay.setAttribute("aria-label", `Score: ${score}`);
+  timerDisplay.replaceChildren(document.createTextNode(String(timeLeft)));
+  const unit = document.createElement("span");
+  unit.className = "time-unit";
+  unit.textContent = "s";
+  timerDisplay.appendChild(unit);
+  timerDisplay.setAttribute("aria-label", `${timeLeft} seconds remaining`);
+  timerDisplay.classList.toggle("is-urgent", timeLeft <= 10 && gameStarted);
 }
 
-// Increase the score when a rocket is clicked
-function increaseScore() {
-  score++;
-  scoreDisplay.innerText = "⭐ " + score;
-}
-
-// Update the timer once per second
-function countdown() {
-  timeLeft--;
-  timerDisplay.innerText = "⏱ " + timeLeft;
-
-  if (timeLeft <= 0) {
-    timerDisplay.innerText = "⏱ 0";
-    endGame();
-  }
-}
-
-// Start the countdown and rocket spawning
 function startGame() {
+  if (gameStarted || submissionPending) return;
+
   gameStarted = true;
+  gameEnded = false;
+  startSection.hidden = true;
+  endSection.hidden = true;
+  button3.disabled = true;
+  gameStatus.textContent = "Click or tap a rocket to score a point.";
+  updateHud();
+
   interval = setInterval(countdown, 1000);
-  rocketInterval = setInterval(spawnRocket, 200);
+  rocketInterval = setInterval(spawnRocket, ROCKET_INTERVAL);
 }
 
-// Stop the game and show the submission controls
-function endGame() {
-  gameEnded = true;
+function countdown() {
+  timeLeft = Math.max(0, timeLeft - 1);
+  updateHud();
 
+  if (timeLeft === 10) gameStatus.textContent = "10 seconds left!";
+  if (timeLeft === 0) endGame();
+}
+
+function endGame() {
+  if (gameEnded) return;
+
+  gameEnded = true;
   clearInterval(interval);
   clearInterval(rocketInterval);
-
-  gameArea.innerHTML = "";
-  button1.style.display = "none";
-  endSection.style.display = "flex";
-  button3.style.display = "none";
-
-  finalScore.style.display = "block";
-  finalScore.innerText = "⭐ Your score: " + score;
+  interval = null;
+  rocketInterval = null;
+  gameArea.replaceChildren();
+  finalScore.textContent = String(score);
+  endSection.hidden = false;
+  button3.disabled = loadingLeaderboard;
+  gameStatus.textContent = `Time's up! You scored ${score} points.`;
+  input1.focus({ preventScroll: true });
 }
 
-// Create a rocket at a random position
 function spawnRocket() {
-  const rocket = document.createElement("div");
+  if (!gameStarted || gameEnded) return;
 
-  rocket.classList.add("rocket");
-  rocket.innerText = "🚀";
-  rocket.style.left = Math.random() * 520 + "px";
-  rocket.style.top = Math.random() * 210 + "px";
+  const rocket = document.createElement("button");
+  rocket.type = "button";
+  rocket.className = "rocket";
+  rocket.setAttribute("aria-label", "Shoot rocket");
+
+  // A proportional position keeps each rocket inside the arena when it resizes.
+  const size = parseFloat(getComputedStyle(gameArea).getPropertyValue("--rocket-size")) || 52;
+  const x = Math.random();
+  const y = Math.random();
+  rocket.style.left = `calc(${x * 100}% - ${x * size}px)`;
+  rocket.style.top = `calc(${y * 100}% - ${y * size}px)`;
 
   rocket.addEventListener("click", () => {
-    if (gameEnded) return;
+    if (!gameStarted || gameEnded) return;
 
-    increaseScore();
+    score += 1;
+    scoreDisplay.textContent = String(score);
+    scoreDisplay.setAttribute("aria-label", `Score: ${score}`);
+    showScorePop(rocket);
     rocket.remove();
-  });
+  }, { once: true });
 
   gameArea.appendChild(rocket);
 }
 
-// Save the score, then automatically open the leaderboard
+function showScorePop(rocket) {
+  const pop = document.createElement("span");
+  pop.className = "score-pop";
+  pop.textContent = "+1";
+  pop.setAttribute("aria-hidden", "true");
+  pop.style.left = rocket.style.left;
+  pop.style.top = rocket.style.top;
+  gameArea.appendChild(pop);
+  setTimeout(() => pop.remove(), 550);
+}
+
+function showFormMessage(message, isError = false) {
+  formMessage.textContent = message;
+  formMessage.classList.toggle("is-error", isError);
+}
+
 async function submitHighScore() {
-  if (!gameEnded || button2.disabled) return;
+  if (!gameEnded || submissionPending || scoreSubmitted) return;
 
   const name = input1.value.trim();
-
   if (name.length < 3 || name.length > 16) {
-    alert("Please enter a name between 3 and 16 characters.");
+    showFormMessage("Please enter a name between 3 and 16 characters.", true);
+    input1.setAttribute("aria-invalid", "true");
+    input1.focus();
     return;
   }
 
+  input1.removeAttribute("aria-invalid");
+  const submittedScore = score;
+  submissionPending = true;
   button2.disabled = true;
   input1.disabled = true;
+  playAgain.disabled = true;
+  button3.disabled = true;
   button2.textContent = "Submitting…";
+  showFormMessage("Saving your score…");
 
   try {
     const player = await getPlayer();
-
-    await addDoc(collection(db, "scores"), {
-      name: name,
-      score: score,
+    const savedDocument = await addDoc(collection(db, "scores"), {
+      name,
+      score: submittedScore,
       uid: player.uid,
       createdAt: serverTimestamp(),
     });
+
+    lastSubmission = { id: savedDocument.id, score: submittedScore };
+    scoreSubmitted = true;
+    scoreForm.hidden = true;
+    showFormMessage("Score saved! Open the leaderboard anytime.");
   } catch (error) {
     console.error("Score submission failed:", error);
-    alert("Could not submit your score. Please try again.");
-
+    showFormMessage("Could not save your score. Please try again.", true);
+  } finally {
+    submissionPending = false;
     button2.disabled = false;
     input1.disabled = false;
-    button2.textContent = "Submit Score";
-    return;
+    playAgain.disabled = false;
+    button3.disabled = loadingLeaderboard;
+    button2.textContent = "Submit score";
   }
 
-  button2.style.display = "none";
-  input1.style.display = "none";
-  label1.style.display = "none";
-  button3.style.display = "block";
-  button3.textContent = "Show Leaderboard";
-
-  // No success alert or OK click is needed
-  await loadScoreboard(true);
+  // Open the leaderboard automatically; no alert or OK step.
+  if (scoreSubmitted) await loadScoreboard();
 }
 
-// Open the popup and fetch the highest scores
-async function loadScoreboard(justSubmitted = false) {
-  if (loadingLeaderboard) return;
+function showTableMessage(message) {
+  const row = document.createElement("tr");
+  const cell = document.createElement("td");
+  cell.colSpan = 3;
+  cell.className = "empty-row";
+  cell.textContent = message;
+  row.appendChild(cell);
+  scoreboard.replaceChildren(row);
+}
 
+async function loadScoreboard() {
+  if (loadingLeaderboard || submissionPending || (gameStarted && !gameEnded)) return;
+
+  const request = ++leaderboardRequest;
   loadingLeaderboard = true;
   button3.disabled = true;
   refreshLeaderboard.disabled = true;
+  const savedMessage = lastSubmission ? `Score saved! Your score: ${lastSubmission.score}. ` : "";
+  leaderboardMessage.textContent = `${savedMessage}Loading leaderboard…`;
+  showTableMessage("Loading…");
 
   try {
-    leaderboardMessage.textContent = justSubmitted
-      ? `Score saved! Your score: ${score}. Loading leaderboard…`
-      : "Loading leaderboard…";
+    if (!leaderboardDialog.open) leaderboardDialog.showModal();
+
+    const topScores = query(collection(db, "scores"), orderBy("score", "desc"), limit(20));
+    const snapshot = await getDocs(topScores);
+    if (request !== leaderboardRequest) return;
 
     scoreboard.replaceChildren();
+    leaderboardMessage.textContent = savedMessage || "The highest scores from all players.";
 
-    // Open immediately while Firebase loads the scores
-    if (!leaderboardDialog.open) {
-      leaderboardDialog.showModal();
-    }
-
-    const topScores = query(
-      collection(db, "scores"),
-      orderBy("score", "desc"),
-      limit(20)
-    );
-
-    const snapshot = await getDocs(topScores);
-
-    leaderboardMessage.textContent = justSubmitted
-      ? `Score saved! Your score: ${score}.`
-      : "The highest scores from all players.";
-
-    if (snapshot.empty) {
-      const message = document.createElement("p");
-      message.textContent = "No scores yet.";
-      scoreboard.appendChild(message);
-    }
+    if (snapshot.empty) showTableMessage("No scores yet. Be the first!");
 
     snapshot.docs.forEach((scoreDocument, index) => {
       const entry = scoreDocument.data();
-      const row = document.createElement("p");
+      const row = document.createElement("tr");
+      if (index < 3) row.classList.add(`rank-${index + 1}`);
+      if (scoreDocument.id === lastSubmission?.id) row.classList.add("is-yours");
 
-      row.textContent = `${index + 1}. ${entry.name} — ${entry.score}`;
+      const rankCell = document.createElement("td");
+      const rankBadge = document.createElement("span");
+      rankBadge.className = "rank-badge";
+      rankBadge.textContent = String(index + 1);
+      rankCell.appendChild(rankBadge);
+
+      const nameCell = document.createElement("td");
+      nameCell.textContent = String(entry.name ?? "Player");
+      const scoreCell = document.createElement("td");
+      scoreCell.textContent = String(entry.score ?? 0);
+
+      row.append(rankCell, nameCell, scoreCell);
       scoreboard.appendChild(row);
     });
   } catch (error) {
+    if (request !== leaderboardRequest) return;
     console.error("Leaderboard loading failed:", error);
-
-    leaderboardMessage.textContent = justSubmitted
-      ? "Your score was saved, but the leaderboard could not load. Click Refresh to retry."
-      : "Could not load the leaderboard. Click Refresh to retry.";
+    leaderboardMessage.textContent = `${savedMessage}Could not load the leaderboard. Select Refresh to retry.`;
+    showTableMessage("Leaderboard unavailable.");
   } finally {
-    loadingLeaderboard = false;
-    button3.disabled = false;
-    refreshLeaderboard.disabled = false;
+    if (request === leaderboardRequest) {
+      loadingLeaderboard = false;
+      refreshLeaderboard.disabled = false;
+      button3.disabled = gameStarted && !gameEnded;
+    }
   }
 }
+
+function restartGame() {
+  if (submissionPending) return;
+  if (leaderboardDialog.open) leaderboardDialog.close();
+
+  clearInterval(interval);
+  clearInterval(rocketInterval);
+  interval = null;
+  rocketInterval = null;
+  // Ignore an earlier leaderboard request if it completes after restarting.
+  leaderboardRequest += 1;
+  loadingLeaderboard = false;
+  refreshLeaderboard.disabled = false;
+  button3.disabled = false;
+
+  score = 0;
+  timeLeft = GAME_SECONDS;
+  gameStarted = false;
+  gameEnded = false;
+  scoreSubmitted = false;
+  lastSubmission = null;
+  gameArea.replaceChildren();
+  endSection.hidden = true;
+  startSection.hidden = false;
+  scoreForm.hidden = false;
+  input1.value = "";
+  input1.disabled = false;
+  input1.removeAttribute("aria-invalid");
+  button2.disabled = false;
+  button2.textContent = "Submit score";
+  showFormMessage("");
+  gameStatus.textContent = "60 seconds. How high can you score?";
+  updateHud();
+  button1.focus({ preventScroll: true });
+}
+
+updateHud();
+

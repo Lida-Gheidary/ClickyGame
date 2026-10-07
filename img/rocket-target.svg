@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="body" x1="20" y1="20" x2="43" y2="36" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff"/><stop offset=".5" stop-color="#dce4ef"/><stop offset="1" stop-color="#8d9bad"/>
+    </linearGradient>
+    <linearGradient id="fin" x1="14" y1="25" x2="36" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f3f6fb"/><stop offset="1" stop-color="#8594a8"/>
+    </linearGradient>
+    <linearGradient id="exhaust" x1="12" y1="48" x2="7" y2="59" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f4f7fc"/><stop offset="1" stop-color="#b7c5da" stop-opacity=".2"/>
+    </linearGradient>
+  </defs>
+  <g transform="rotate(43 32 32)">
+    <path d="M27 43 22 48 23 34 27 27Z" fill="url(#fin)" stroke="#becadb" stroke-width=".7"/>
+    <path d="M37 43 42 48 41 34 37 27Z" fill="url(#fin)" stroke="#becadb" stroke-width=".7"/>
+    <path d="M32 4C25 14 23 27 27 44L32 48 37 44C41 27 39 14 32 4Z" fill="url(#body)" stroke="#e5ecf6" stroke-width=".7"/>
+    <path d="M32 5C29 17 28 31 30 45" fill="none" stroke="#fff" stroke-opacity=".65" stroke-width="1.4"/>
+    <circle cx="32" cy="24" r="4.6" fill="#111b2b" stroke="#a5b4c7" stroke-width="1.2"/>
+    <path d="M28 46 29 49H35L36 46Z" fill="#78889c"/>
+    <path d="M29 51Q27 57 32 62Q37 57 35 51Z" fill="url(#exhaust)"/>
+  </g>
+</svg>
