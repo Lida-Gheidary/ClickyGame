@@ -7,7 +7,7 @@ A space-themed game where you click or tap rockets to earn points before time ru
 ## How to Play
 
 1. Select **Start game** to begin.
-2. Click or tap the rockets—each rocket earns one point.
+2. Click or tap the rockets. Each rocket earns one point.
 3. When the 60 seconds end, enter your name and select **Submit score**.
 4. The **Top 20 leaderboard** opens automatically after submission.
 5. Select **Play again** to try to beat your score.
@@ -29,11 +29,11 @@ The responsive layout adapts to desktop, tablet, and mobile screens.
 
 ## Built With
 
-- **HTML, CSS, and JavaScript** — interface and gameplay
-- **Firebase Cloud Firestore** — score storage and leaderboard queries
-- **Firebase Anonymous Authentication** — player identification without a sign-up form
-- **Webpack** — development server and production builds
-- **GitHub Pages and GitHub Actions** — hosting and automated deployment
+- **HTML, CSS, and JavaScript:** interface and gameplay
+- **Firebase Cloud Firestore:** score storage and leaderboard queries
+- **Firebase Anonymous Authentication:** player identification without a signup form
+- **Webpack:** development server and production builds
+- **GitHub Pages and GitHub Actions:** hosting and automated deployment
 
 ## Run Locally
 
@@ -58,6 +58,6 @@ The build generates the website in `dist`. The GitHub Actions workflow builds an
 
 ## Notes
 
-- Player names must contain 3–16 characters after trimming spaces.
+- Player names must contain 3 to 16 characters after trimming spaces.
 - Scoring stops when the timer reaches zero.
 - An internet connection is required to submit scores and load the leaderboard.
